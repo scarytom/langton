@@ -43,9 +43,10 @@
                  :convoluted-highway [-1 -1 1 1 1 -1 1 -1 1 -1 -1 1]
                  :moving-triangle [1 1 -1 -1 -1 1 -1 -1 -1 1 1 1]})
 
-(def behaviour (behaviours :chaotic))
+(def behaviour (behaviours :original))
 
-(def state {:ant-position  (int (+ (/ grid-size 2)
+(def state {:iteration 0
+            :ant-position  (int (+ (/ grid-size 2)
                                    (* grid-size (int (/ grid-size 2)))))
             :ant-direction 0
             :matrix        (vec
@@ -55,7 +56,8 @@
   (q/frame-rate 128)
   (q/color-mode :hsb)
   (q/no-stroke)
-  (q/background 240)
+  (q/background 255)
+  (Thread/sleep 3000)
   state)
 
 (defn update-direction [dir colour]
@@ -70,17 +72,18 @@
          3 (dec pos))
        (* grid-size grid-size)))
 
-(defn update-state [{:keys [ant-position ant-direction matrix] :as state}]
+(defn update-state [{:keys [iteration ant-position ant-direction matrix] :as state}]
   (let [colour-under-ant (get matrix ant-position)
         new-colour (mod (inc colour-under-ant) (count behaviour))
         new-direction (update-direction ant-direction colour-under-ant)
         new-position (update-position ant-position new-direction)]
-    (assoc state :ant-previous-position ant-position
+    (assoc state :iteration (inc iteration)
+                 :ant-previous-position ant-position
                  :ant-position new-position
                  :ant-direction new-direction
                  :matrix (assoc matrix ant-position new-colour))))
 
-(defn draw-state [{:keys [ant-previous-position matrix] :as state}]
+(defn draw-state [{:keys [ant-previous-position matrix] :as _state}]
   (when ant-previous-position
     (let [cell-size (quot (q/width) grid-size)
           multiplier (int (/ ant-previous-position grid-size))
@@ -92,7 +95,7 @@
 
 (q/defsketch langton
   :title "Langdon's Ant"
-  :size [500 500]
+  :size [2000 2000]
   ; setup function called only once, during sketch initialization.
   :setup setup
   ; update-state is called on each iteration before draw-state.
