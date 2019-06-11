@@ -1,6 +1,6 @@
 # langton
 
-A Quil sketch designed to ... well, that part is up to you.
+A Quil sketch designed to demonstrate Langton's Ant
 
 ## Usage
 
@@ -12,7 +12,7 @@ REPL - run `(require 'com.scarytom.langton.core)`.
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2019 Tom Denley
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
