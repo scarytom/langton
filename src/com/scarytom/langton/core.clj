@@ -2,39 +2,9 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
-;(defn setup []
-;  ; Set frame rate to 30 frames per second.
-;  (q/frame-rate 30)
-;  ; Set color mode to HSB (HSV) instead of default RGB.
-;  (q/color-mode :hsb)
-;  ; setup function returns initial state. It contains
-;  ; circle color and position.
-;  {:color 0
-;   :angle 0})
-;
-;(defn update-state [state]
-;  ; Update sketch state by changing circle color and position.
-;  {:color (mod (+ (:color state) 0.7) 255)
-;   :angle (+ (:angle state) 0.1)})
-;
-;(defn draw-state [state]
-;  ; Clear the sketch by filling it with light-grey color.
-;  (q/background 240)
-;  ; Set circle color.
-;  (q/fill (:color state) 255 255)
-;  ; Calculate x and y coordinates of the circle.
-;  (let [angle (:angle state)
-;        x (* 150 (q/cos angle))
-;        y (* 150 (q/sin angle))]
-;    ; Move origin point to the center of the sketch.
-;    (q/with-translation [(/ (q/width) 2)
-;                         (/ (q/height) 2)]
-;      ; Draw the circle.
-;      (q/ellipse x y 100 100))))
-
-
 (def grid-size 60)
 (def colours [0 255 128 64 192])
+(def max-iterations 11000)
 
 (def behaviours {:original [1 -1]
                  :chaotic [1 -1 1]
@@ -45,12 +15,10 @@
 
 (def behaviour (behaviours :original))
 
-(def state {:iteration 0
-            :ant-position  (int (+ (/ grid-size 2)
-                                   (* grid-size (int (/ grid-size 2)))))
+(def state {:iteration     0
             :ant-direction 0
-            :matrix        (vec
-                             (repeatedly (* grid-size grid-size) #(identity 0)))})
+            :ant-position  (int (+ (/ grid-size 2) (* grid-size (int (/ grid-size 2)))))
+            :matrix        (vec (repeatedly (* grid-size grid-size) #(identity 0)))})
 
 (defn setup []
   (q/frame-rate 128)
@@ -77,11 +45,13 @@
         new-colour (mod (inc colour-under-ant) (count behaviour))
         new-direction (update-direction ant-direction colour-under-ant)
         new-position (update-position ant-position new-direction)]
-    (assoc state :iteration (inc iteration)
-                 :ant-previous-position ant-position
-                 :ant-position new-position
-                 :ant-direction new-direction
-                 :matrix (assoc matrix ant-position new-colour))))
+    (if (< iteration max-iterations)
+      (assoc state :iteration (inc iteration)
+                   :ant-previous-position ant-position
+                   :ant-position new-position
+                   :ant-direction new-direction
+                   :matrix (assoc matrix ant-position new-colour))
+      state)))
 
 (defn draw-state [{:keys [ant-previous-position matrix] :as _state}]
   (when ant-previous-position
@@ -101,7 +71,7 @@
   ; update-state is called on each iteration before draw-state.
   :update update-state
   :draw draw-state
-  :features [:keep-on-top]
+  ;:features [:keep-on-top]
   ; This sketch uses functional-mode middleware.
   ; Check quil wiki for more info about middlewares and particularly
   ; fun-mode.
