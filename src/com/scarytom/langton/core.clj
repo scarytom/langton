@@ -3,8 +3,8 @@
             [quil.middleware :as m]))
 
 (def grid-size 60)
-(def colours [0 255 128 64 192])
-(def max-iterations 11000)
+(def colours [[0 0 0] [204 102 0] [0 128 255] [64 64 64] [192 192 192]])
+(def max-iterations 10500)
 
 (def behaviours {:original [1 -1]
                  :chaotic [1 -1 1]
@@ -13,7 +13,7 @@
                  :convoluted-highway [-1 -1 1 1 1 -1 1 -1 1 -1 -1 1]
                  :moving-triangle [1 1 -1 -1 -1 1 -1 -1 -1 1 1 1]})
 
-(def behaviour (behaviours :original))
+(def behaviour (behaviours :chaotic))
 
 (def state {:iteration     0
             :ant-direction 0
@@ -59,7 +59,7 @@
           multiplier (int (/ ant-previous-position grid-size))
           x (* cell-size (- ant-previous-position (* multiplier grid-size)))
           y (* cell-size multiplier)]
-      (q/fill
+      (apply q/fill
         (colours (matrix ant-previous-position)))
       (q/rect x y cell-size cell-size))))
 
